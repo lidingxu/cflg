@@ -17,6 +17,15 @@ coverages = ["Small"]
 benchmarks = ["city", "Kgroup_A", "Kgroup_B", "random_A", "random_B"]
 
 
+def parse_name(name):
+    s = ""
+    for c in name:
+        if c == "_":
+            s += "\_"
+        else:
+            s +=c
+    return s
+
 def extractInstanceResult(file_path):
     ls = open(file_path).readlines()
     #print(file)
@@ -139,6 +148,7 @@ def addtab(bench_tab, stat):
     return bench_tab
 
 allentries = []
+details = ""
 for benchmark in benchmarks:
     # parse all results and logs, create solution for each instance
     bench_tab = "&"
@@ -161,6 +171,8 @@ for benchmark in benchmarks:
             entry["coverage"] =  "Small" if instance.find("Small") else "Large"
             entry["type"] = 1
             entries.append(entry)
+
+    print(entries)
 
     # compute over-all stat
     for instance_stat in instance_stats:
@@ -232,17 +244,34 @@ for benchmark in benchmarks:
     bench_tab = bench_tab[0:-2]
     print(bench_tab)
 
+            
     for cover in coverages:
         max_node = 0
         min_node = 2**30
         for instance_stat in instance_stats:
             if instance_stat["coverage"] == cover:
+                detail = str(parse_name(instance_stat["instance"])[0:-4]) + " & " + str(int(instance_stat["sdb_node"])) + " & " + str(int(instance_stat["sdb_edge"])) + " & " + str(int(instance_stat["dtf_node"])) + " & " + str(int(instance_stat["dtf_edge"]))
+                for algo in algorithms:
+                        if algo == "None":
+                            continue
+                        iffind = False
+                        for entry in entries:
+                            if entry["instance"] ==  instance_stat["instance"] and entry["algo"] == algo and entry["coverage"] == cover:
+                                detail += "&" + str(round(entry["time"],1)) + " & "  + str(round(entry["gap"],2)) + " & " +  str(round(entry["obj"],1)) 
+                                iffind = True
+                        if not iffind:
+                                detail += "&" + str("NAN") + " & "  + str("NAN") + " & " +  str("NAN") 
+                details += detail + "\\\\" + "\n"
                 max_node = max(instance_stat["org_node"], max_node)
                 min_node = min(instance_stat["org_node"], min_node)
                 if instance_stat["org_node"] > 1000:
                     print(instance_stat["org_node"], instance_stat["instance"])
+            
         #print(max_node, min_node)
 
+file = open("details.txt", "w")
+file.write(details)
+file.close()
 
 allbench_tab = "&"
 alldisentries = []
@@ -332,6 +361,8 @@ for algo_ in algorithms_:
         #print(stat)
         allbench_tab = addtab(allbench_tab, stat)
 print(allbench_tab)
+
+
 
 def addaxes(axes, i, algo1, algo2, dual_results, primal_results):
     axes[i,0].scatter(dual_results[algo1],dual_results[algo2], color = 'blue', marker = '+')
