@@ -12,7 +12,7 @@ max_dual_bound = -1
 time_limit =1800
 #solvers = [ "bphybridph", "bphybridphad3"]
 algorithms  = ["EF", "F0", "F", "SF", "RF",  "SFD", "None"]
-algorithms_  = ["SFD", "RF"] #["EF", "F0", "F", "SF", "RF"]
+algorithms_  = ["EF", "F0", "F", "SF", "RF"]
 coverages = ["Small"]
 benchmarks = ["city", "Kgroup_A", "Kgroup_B", "random_A", "random_B"]
 
@@ -264,8 +264,6 @@ for benchmark in benchmarks:
                 details += detail + "\\\\" + "\n"
                 max_node = max(instance_stat["org_node"], max_node)
                 min_node = min(instance_stat["org_node"], min_node)
-                if instance_stat["org_node"] > 1000:
-                    print(instance_stat["org_node"], instance_stat["instance"])
             
         #print(max_node, min_node)
 
@@ -360,7 +358,7 @@ for algo_ in algorithms_:
         display = avgStat(stat)
         #print(stat)
         allbench_tab = addtab(allbench_tab, stat)
-print(allbench_tab)
+#print(allbench_tab)
 
 
 
@@ -370,6 +368,10 @@ def addaxes(axes, i, algo1, algo2, dual_results, primal_results):
     axes[i,0].set_xlabel(algo1)
     axes[i,0].set_ylabel(algo2)
     axes[i,0].set_title("relative dual gap")
+
+    if i == 0:
+        print(algo1, algo2)
+        print(dual_results[algo1], dual_results[algo2])
 
     axes[i,1].scatter(primal_results[algo1],primal_results[algo2], color = 'red', marker = 'x')
     axes[i,1].plot(primal_results[algo1],primal_results[algo1], color = 'orange')
@@ -397,7 +399,7 @@ if len(algorithms_) != 2:
 
     pairs = [("F0", "F"), ("F","SF"), ("SF", "RF")]
 
-    i = 0;
+    i = 0
     for pair in pairs:
         algo1 = pair[0]
         algo2 = pair[1]
